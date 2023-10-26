@@ -1,0 +1,16 @@
+// Initialize row change, add, or update
+var rowChange = (from d in ds.APInvDtl where d.Company == callContextClient.CurrentCompany && (d.RowMod == "A" || d.RowMod == "U") select d).FirstOrDefault();
+if (rowChange != null)
+{
+  // Check if the vendor number in that invoice belongs to group 'FRM'
+  var vendor = (from v in Db.Vendor where v.VendorNum == rowChange.VendorNum && v.Company == rowChange.Company && v.GroupCode == "FRM" select v).FirstOrDefault();
+  if (vendor != null)
+    {
+      // Check if the PartNum exists in the Part table
+      var partExists = (from p in Db.Part where p.PartNum == rowChange.PartNum && p.Company == rowChange.Company select p).Any();
+      if (!partExists)
+        {
+          throw new Ice.BLException("PartNum does not exist in the Part table. Please enter a valid PartNum.");
+        }
+    }
+}   

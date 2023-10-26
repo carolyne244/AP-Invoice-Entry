@@ -1,0 +1,19 @@
+var tempRow = (from trow in ttAPInvDtl where trow.RowMod == "A" || trow.RowMod == "U" select trow).FirstOrDefault();
+if (tempRow != null)
+{
+    var vendpart = Db.VendPart.Where(p => p.Company == tempRow.Company && p.VendorNum == tempRow.VendorNum && p.PartNum == tempRow.PartNum).FirstOrDefault();
+    if(vendpart != null)
+    {
+        // Check if ScrVendorQty and DocScrUnitCost have been modified.
+        if (tempRow.DocScrUnitCost != vendpart.BaseUnitPrice)
+        {
+            throw new Ice.BLException("You are not allowed to change unit price.");
+        }
+        
+        // Check if PartDescription has been modified.
+        if (tempRow.Description != vendpart.PartDescription)
+        {
+            throw new Ice.BLException("You are not allowed to change PartDescription.");
+        }
+    }
+}
